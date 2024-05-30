@@ -1,6 +1,6 @@
 # Change Log
 
-## v2.4.0 (2024-05-23)
+## v2.4.0 (2024-05-30)
 
 ### NEW MODULES
   - azure_rm_storageaccountmanagementpolicy: Add support for manage storage account management policy ([#1536](https://github.com/ansible-collections/azure/pull/1536))
