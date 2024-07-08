@@ -65,6 +65,11 @@ options:
             - The primary email address of the user.
             - Used when either creating or updating a user account.
         type: str
+    mobile_phone:
+        description:
+            - Mobile phone number of the user.
+            - Used when either creating or updating a user account.
+        type: str
     mail_nickname:
         description:
             - The mail alias for the user.
@@ -165,6 +170,7 @@ EXAMPLES = '''
     user_type: "Member"
     usage_location: "US"
     mail: "{{ user_principal_name }}@contoso.com"
+    mobile_phone: "+1234567890123"
     company_name: 'Test Company'
     on_premises_extension_attributes:
       extension_attribute1: "test_extension_attribute1"
@@ -226,6 +232,12 @@ user_type:
     returned: always
     type: str
     sample: Member
+mobile_phone:
+    description:
+        - The mobile phone number of the user.
+    type: str
+    returned: always
+    sample: '+1234567890123'
 company_name:
     description:
         - The name of the company that the user is associated with.
@@ -281,6 +293,7 @@ class AzureRMADUser(AzureRMModuleBase):
             user_type=dict(type='str'),
             mail=dict(type='str'),
             company_name=dict(type='str'),
+            mobile_phone=dict(type='str'),
             on_premises_extension_attributes=dict(type='dict', aliases=['extension_attributes'])
         )
 
@@ -303,6 +316,7 @@ class AzureRMADUser(AzureRMModuleBase):
         self.user_type = None
         self.mail = None
         self.company_name = None
+        self.mobile_phone = None
         self.on_premises_extension_attributes = None
         self.log_path = None
         self.log_mode = None
@@ -372,6 +386,8 @@ class AzureRMADUser(AzureRMModuleBase):
                     if should_update or self.user_principal_name and ad_user.user_principal_name != self.user_principal_name:
                         should_update = True
                     if should_update or self.mail_nickname and ad_user.mail_nickname != self.mail_nickname:
+                        should_update = True
+                    if should_update or self.mobile_phone and ad_user.mobile_phone != self.mobile_phone:
                         should_update = True
                     if should_update or self.company_name and ad_user.company_name != self.company_name:
                         should_update = True
@@ -468,6 +484,7 @@ class AzureRMADUser(AzureRMModuleBase):
             account_enabled=object.account_enabled,
             user_type=object.user_type,
             company_name=object.company_name,
+            mobile_phone=object.mobile_phone,
             on_premises_extension_attributes=self.on_premises_extension_attributes_to_dict(object.on_premises_extension_attributes)
         )
 
@@ -484,6 +501,7 @@ class AzureRMADUser(AzureRMModuleBase):
             user_principal_name=self.user_principal_name,
             mail_nickname=self.mail_nickname,
             company_name=self.company_name,
+            mobile_phone=self.mobile_phone,
             on_premises_extension_attributes=extension_attributes
         )
         return await self._client.users.by_user_id(ad_user.id).patch(body=request_body)
@@ -507,6 +525,7 @@ class AzureRMADUser(AzureRMModuleBase):
             user_type=self.user_type,
             mail=self.mail,
             company_name=self.company_name,
+            mobile_phone=self.mobile_phone,
             on_premises_extension_attributes=extension_attributes
         )
         return await self._client.users.post(body=request_body)
@@ -518,7 +537,7 @@ class AzureRMADUser(AzureRMModuleBase):
         request_configuration = UsersRequestBuilder.UsersRequestBuilderGetRequestConfiguration(
             query_parameters=UsersRequestBuilder.UsersRequestBuilderGetQueryParameters(
                 select=["accountEnabled", "displayName", "mail", "mailNickname", "id", "userPrincipalName", "userType",
-                        "onPremisesImmutableId", "usageLocation", "givenName", "surname", "companyName",
+                        "onPremisesImmutableId", "usageLocation", "givenName", "surname", "companyName", "mobilePhone",
                         "OnPremisesExtensionAttributes"]
             ),
         )
@@ -530,7 +549,7 @@ class AzureRMADUser(AzureRMModuleBase):
                 query_parameters=UsersRequestBuilder.UsersRequestBuilderGetQueryParameters(
                     filter=filter,
                     select=["accountEnabled", "displayName", "mail", "mailNickname", "id", "userPrincipalName",
-                            "userType", "onPremisesImmutableId", "usageLocation", "givenName", "surname", "companyName",
+                            "userType", "onPremisesImmutableId", "usageLocation", "givenName", "surname", "companyName", "mobilePhone",
                             "OnPremisesExtensionAttributes"],
                     count=True
                 ),
